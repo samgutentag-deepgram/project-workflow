@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "project-workflow",
+  "version": "0.2.0",
+  "description": "Per-project structure for Claude Code: a source-of-truth hub page and an append-only build ledger, kept current as you build.",
+  "author": { "name": "Sam Gutentag" },
+  "repository": "https://github.com/samgutentag-deepgram/project-workflow",
+  "keywords": ["claude-code", "skills", "project-management", "documentation", "workflow"]
+}

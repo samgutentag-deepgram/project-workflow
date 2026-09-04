@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "project-workflow",
+  "owner": {
+    "name": "Sam Gutentag",
+    "url": "https://github.com/samgutentag-deepgram"
+  },
+  "plugins": [
+    {
+      "name": "project-workflow",
+      "source": "./",
+      "description": "Per-project structure for Claude Code: a source-of-truth hub page and an append-only build ledger, kept current as you build.",
+      "version": "0.2.0"
+    }
+  ]
+}

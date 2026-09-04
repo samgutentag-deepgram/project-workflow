@@ -1,0 +1,94 @@
+# project-hub authored config, for project-workflow itself.
+# Only what a repo scan cannot find. .hub/index.html is derived from a scan plus this file.
+#
+# This repo is shared. Nothing here names a product or a company, and there are no file://
+# tiles, because a local path is both dead in every clone and a leak of the author's disk.
+
+wordmark: project-workflow
+title: project-workflow
+eyebrow: a claude code plugin
+lede: >-
+  The plugin that generates this page. One hidden directory per repo, four things in it, so you can
+  build freely, walk away, and see where you are in one glance.
+
+objectives:
+  - name: Extract the skill into a plugin
+    state: done
+    detail: >
+      The skill lived in a personal dotfiles repo, symlinked into ~/.claude, where edits were live
+      and testing was free. A plugin has to be reinstalled to test, which is worse friction during a
+      week of daily changes, so the extraction waited until the workflow stopped moving.
+      What forced it: these skills referenced each other by name and path, so anyone installing one
+      got pointers to skills they did not have. Now MIT, employer-agnostic, and its own marketplace.
+
+  - name: Cut to four files
+    state: done
+    detail: >
+      927 lines and seven artifacts per repo, for what is an index page and a log. Now 378 and four.
+      Deleted: a commit hook writing an event log, a generated manifest, and a health checker.
+      Every field in the event log was derivable from git log. The manifest was a contract for an
+      aggregation tool that does not exist, which is the exact YAGNI violation the skill file warned
+      against two hours before it was built. The checker needed three bug fixes in one day, and a
+      checker that reports clean when it is not is worse than no checker.
+      The board is what replaced them, absorbing both a roadmap file and a progress file so one
+      artifact owns status instead of three drifting.
+
+  - name: State icons that survive a narrow column
+    state: done
+    detail: >
+      The todo marker rendered as a broken bracket: "[ ]" is three characters in a box fixed at
+      1.4rem, so it wrapped, with the opening bracket on one line and the closing bracket on the
+      next, on every todo row. Replaced with four SVG symbols in a sprite, referenced per objective,
+      stroked in currentColor so one set serves both themes instead of eight data URIs.
+      State stays distinguishable by shape rather than colour, which is the rule the board had from
+      the start: check, play triangle, empty ring, dashed ring, all on the same 16x16 ring so rows
+      align.
+
+  - name: Migrate the repos still on the old layout
+    state: now
+    detail: |
+      Three repos carried the seven-file hub/ layout. Two are migrated: scaffolding deleted, hub/
+      moved to .hub/ with history preserved, real objectives written into hub.yml from what each
+      project is actually doing, index.html regenerated, and a correction entry appended to each
+      ledger naming the moved paths.
+      The third is deferred, not skipped. Another session is actively editing that repo, and a
+      git mv against an index someone else is staging into either clobbers their work or loses it.
+      Next: run the same three-step cleanup there once that session is idle. It needs less than the
+      others, since it is already on .hub/.
+
+  - name: Check local paths at generation time
+    state: todo
+    detail: >
+      A reference tile in one migrated repo had pointed at a path that stopped existing a day
+      earlier, and nothing noticed, because a dead local link renders exactly like a live one.
+      The skill already marks machine-local tiles with a class, but that says the link might not
+      resolve elsewhere. It says nothing about whether it resolves here.
+      A link check at generation time is what caught it. That belongs in the skill rather than in
+      whatever the generating session happened to think of.
+
+  - name: The rest of the workflow skills
+    state: later
+    detail: >
+      Three more skills belong in this plugin: the two that snapshot and resume work in progress,
+      and the one that renders a long-running plan as a page. They are employer-agnostic already.
+      Held back because a plugin must be reinstalled to test, and moving them while the hub layout
+      was still changing weekly would have meant reinstalling on every edit.
+
+  - name: A second plugin for the content side
+    state: later
+    detail: >
+      The content skills are a different plugin, not more of this one. This one is about project
+      structure and works for anyone; that one encodes a specific content cycle and a specific
+      stack. Splitting on that line is what keeps this repo installable by a stranger.
+
+reference:
+  Claude Code:
+    - name: 🧩 Plugin reference
+      url: https://docs.claude.com/en/docs/claude-code/plugins
+      desc: Manifest schema, marketplace format, and how a plugin is installed from a repo.
+    - name: 🧰 Agent Skills
+      url: https://docs.claude.com/en/docs/claude-code/skills
+      desc: What a SKILL.md is and how the model decides to invoke one.
+
+# No sibling tiles. Every sibling of this repo is a local path, which is dead in a clone.
+siblings: []

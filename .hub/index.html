@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<!--
+  project-hub template. Canonical chrome: do not restyle, rename, or re-derive.
+  Copy verbatim to <repo>/.hub/index.html, then replace only:
+    - the <title>, the .eyebrow, the <h1>, the .lede
+    - everything between TILES START/END   (left column)
+    - everything between BOARD START/END   (right column)
+    - the two .stamp lines
+  Paths are relative to .hub/, so repo files are ../<path>.
+  Never hand-edit the generated file. Change the repo or .hub/hub.yml, regenerate.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>project-workflow &middot; Project Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfbff; --text: #1a1a1f; --heading: #101014; --muted: #4e4e52; --faint: #949498;
+    --rule: #e1e1e5; --card-bg: #f4f4f7; --code-bg: #f0f0f4; --btn-bg: #ededf2; --btn-border: #bbbbbf;
+    --accent: #075433; --link: #0f6fc4; --done: #4e4e52;
+  }
+  html[data-theme="dark"] {
+    --bg: #0b0b0c; --text: #ededf2; --heading: #fbfbff; --muted: #bbbbbf; --faint: #949498;
+    --rule: #2c2c33; --card-bg: #101014; --code-bg: #17171c; --btn-bg: #1a1a1f; --btn-border: #4e4e52;
+    --accent: #13ef93; --link: #79affa; --done: #949498;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: 'Inter', system-ui, -apple-system, sans-serif; max-width: 78rem; margin: 0 auto;
+    padding: 0 1.5rem 4rem; line-height: 1.5; background: var(--bg); color: var(--text);
+    transition: background 0.15s, color 0.15s; }
+  body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 4px; background: var(--accent); z-index: 20; }
+  h1, h2 { font-family: 'Roobert Pro', 'Inter', system-ui, sans-serif; color: var(--heading); letter-spacing: -0.01em; }
+  h1 { font-size: 1.8rem; margin: 0 0 0.2rem; }
+  h2 { font-size: 1.05rem; margin: 1.8rem 0 0.7rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--rule); }
+  .cols h2:first-child, .tiles h2:first-child { margin-top: 0; }
+  .eyebrow { font-family: 'Roobert Pro', 'Inter', sans-serif; font-size: 0.78rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--faint); margin: 1.4rem 0 0.4rem; }
+  .eyebrow .dg { color: var(--accent); font-weight: 800; }
+  .lede { color: var(--muted); font-size: 0.98rem; margin: 0.2rem 0 1.6rem; max-width: 52rem; }
+  #theme-toggle { position: fixed; top: 1rem; right: 1rem; font: inherit; font-size: 0.82rem;
+    color: var(--text); background: var(--btn-bg); border: 1px solid var(--btn-border); border-radius: 6px;
+    padding: 0.4rem 0.7rem; cursor: pointer; z-index: 21; }
+
+  /* Tiles left, board right. Stacks under 62rem so it still reads on a laptop. */
+  .cols { display: grid; grid-template-columns: minmax(0, 1fr) 24rem; gap: 2.5rem; align-items: start; }
+  @media (max-width: 62rem) { .cols { grid-template-columns: 1fr; gap: 1.5rem; } }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.7rem; }
+  a.tile { display: block; text-decoration: none; color: inherit; background: var(--card-bg);
+    border: 1px solid var(--rule); border-radius: 10px; padding: 0.8rem 1rem; transition: border-color 0.12s, transform 0.12s; }
+  a.tile:hover { border-color: var(--accent); transform: translateY(-1px); }
+  a.tile .name { font-weight: 600; color: var(--heading); display: flex; align-items: center; gap: 0.45rem; }
+  a.tile .desc { font-size: 0.82rem; color: var(--faint); margin-top: 0.2rem; }
+  a.tile .path { font-family: 'SF Mono', ui-monospace, Menlo, monospace; font-size: 0.72rem; color: var(--muted);
+    background: var(--code-bg); border-radius: 3px; padding: 0.05em 0.35em; }
+  .ext::after { content: " \2197"; color: var(--faint); }
+  .pending { opacity: 0.55; }
+  .pending .name::after { content: " (pending)"; font-weight: 400; font-size: 0.78rem; color: var(--faint); }
+  .local { opacity: 0.7; }
+  .local .name::after { content: " (local only)"; font-weight: 400; font-size: 0.78rem; color: var(--faint); }
+
+  /* Board: one <details> per objective. State is carried by icon SHAPE, never colour alone.
+     Icons are <use> refs into the sprite at the top of <body>, stroked in currentColor so a
+     single set works in both themes. They were character markers ([x], [ ]) until 2026-08-07,
+     when "[ ]" turned out to wrap onto two lines inside its 1.4rem box. */
+  .board { background: var(--card-bg); border: 1px solid var(--rule); border-radius: 10px; padding: 0.3rem 0.9rem 0.6rem; }
+  .board details { border-bottom: 1px solid var(--rule); }
+  .board details:last-of-type { border-bottom: 0; }
+  .board summary { cursor: pointer; list-style: none; padding: 0.62rem 0; display: flex; gap: 0.6rem;
+    align-items: center; font-size: 0.9rem; }
+  .board summary::-webkit-details-marker { display: none; }
+  .board .ico { width: 15px; height: 15px; flex: none; color: var(--faint); }
+  .board .done > summary .ico,
+  .board .now  > summary .ico { color: var(--accent); }
+  .board .done  > summary { color: var(--done); }
+  .board .now   > summary { font-weight: 600; color: var(--heading); }
+  .board .later > summary { font-style: italic; color: var(--faint); }
+  .board summary .txt { min-width: 0; }
+  .board .now   > summary::after { content: "now"; font-family: 'Roobert Pro', 'Inter', sans-serif;
+    font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 999px; padding: 0.05rem 0.4rem; margin-left: auto; flex: none; }
+  .board .detail { font-size: 0.84rem; color: var(--muted); padding: 0 0 0.7rem 1.6rem; }
+  .board .detail p { margin: 0.3rem 0; }
+  .board .detail code { font-family: 'SF Mono', ui-monospace, Menlo, monospace; font-size: 0.78rem;
+    background: var(--code-bg); border-radius: 3px; padding: 0.05em 0.35em; }
+  .stamp { color: var(--faint); font-size: 0.78rem; font-family: 'Roobert Pro', 'Inter', sans-serif; margin-top: 0.9rem; }
+  .foot { margin-top: 2.5rem; }
+  @media print { #theme-toggle { display: none; } .cols { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<!-- Status icon sprite. Same 16x16 footprint so every row aligns; state is distinguishable by
+     shape alone: check / play / empty ring / dashed ring. Stroked in currentColor. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="ico-done" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M5 8.2l2.1 2.1L11 6.4" fill="none" stroke="currentColor" stroke-width="1.6"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ico-now" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M6.6 5.2l4 2.8-4 2.8z" fill="currentColor"/>
+    </symbol>
+    <symbol id="ico-todo" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    </symbol>
+    <symbol id="ico-later" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"
+              stroke-dasharray="2.4 2.2"/>
+    </symbol>
+  </defs>
+</svg>
+<button id="theme-toggle" type="button" aria-label="Toggle dark mode">Light mode</button>
+
+<p class="eyebrow"><span class="dg">project-workflow</span> &middot; A CLAUDE CODE PLUGIN &middot; project hub</p>
+<h1>project-workflow &middot; Project Hub</h1>
+<p class="lede">The plugin that generates this page. One hidden directory per repo, four things in it, so you can build freely, walk away, and see where you are in one glance.</p>
+
+<div class="cols">
+
+<div class="tiles">
+<!-- TILES START -->
+<h2>Capture</h2>
+<div class="grid">
+  <a class="tile" href="ledger.md"><span class="name">📓 Build ledger</span><span class="desc">Decisions, friction, dead ends, claims. The design history predating this file lives in the repo this plugin was extracted from.</span> <span class="path">.hub/ledger.md</span></a>
+  <a class="tile" href="assets/"><span class="name">📸 Captured assets</span><span class="desc">Terminal sessions, logs, diffs, screenshots. Empty so far.</span> <span class="path">.hub/assets/</span></a>
+</div>
+
+<h2>The skill</h2>
+<div class="grid">
+  <a class="tile" href="../skills/project-hub/SKILL.md"><span class="name">🧠 SKILL.md</span><span class="desc">The whole skill: why it exists, the four verbs, the ledger tags, and the rules that stop the generated page from drifting.</span> <span class="path">skills/project-hub/SKILL.md</span></a>
+  <a class="tile" href="../skills/project-hub/template.html"><span class="name">🎨 template.html</span><span class="desc">Canonical chrome, copied verbatim into every repo. Tokens live in one :root block, so a palette change is a single edit.</span> <span class="path">skills/project-hub/template.html</span></a>
+</div>
+
+<h2>Ship &amp; run</h2>
+<div class="grid">
+  <a class="tile" href="../README.md"><span class="name">📄 README</span><span class="desc">What it does, how to install it, and what was deliberately left out.</span> <span class="path">README.md</span></a>
+  <a class="tile" href="../.claude-plugin/plugin.json"><span class="name">🧩 plugin.json</span><span class="desc">The plugin manifest. v0.1.0.</span> <span class="path">.claude-plugin/plugin.json</span></a>
+  <a class="tile" href="../.claude-plugin/marketplace.json"><span class="name">🏪 marketplace.json</span><span class="desc">This repo is both the plugin and its own marketplace, so installing it is two commands against one URL.</span> <span class="path">.claude-plugin/marketplace.json</span></a>
+  <a class="tile" href="../scripts/pack-skills.sh"><span class="name">📦 pack-skills.sh</span><span class="desc">Builds a .skill archive per skill folder for claude.ai and Claude Desktop. Run on skill edits, not every commit: zip embeds mtimes and churns bytes.</span> <span class="path">scripts/pack-skills.sh</span></a>
+  <a class="tile" href="../LICENSE"><span class="name">⚖️ LICENSE</span><span class="desc">MIT.</span> <span class="path">LICENSE</span></a>
+</div>
+
+<h2>Reference: Claude Code</h2>
+<div class="grid">
+  <a class="tile ext" href="https://github.com/samgutentag-deepgram/project-workflow"><span class="name">🐙 This repo</span><span class="desc">MIT. The install target for the two marketplace commands in the README.</span></a>
+  <a class="tile ext" href="https://docs.claude.com/en/docs/claude-code/plugins"><span class="name">🧩 Plugin reference</span><span class="desc">Manifest schema, marketplace format, and how a plugin is installed from a repo.</span></a>
+  <a class="tile ext" href="https://docs.claude.com/en/docs/claude-code/skills"><span class="name">🧰 Agent Skills</span><span class="desc">What a SKILL.md is and how the model decides to invoke one.</span></a>
+</div>
+<!-- TILES END -->
+</div>
+
+<div>
+<h2>Objectives</h2>
+<div class="board">
+<!-- BOARD START -->
+<details class="done">
+  <summary><svg class="ico"><use href="#ico-done"/></svg><span class="txt">Extract the skill into a plugin</span></summary>
+  <div class="detail">
+    <p>The skill lived in a personal dotfiles repo, symlinked into <code>~/.claude</code>, where edits were live and testing was free. A plugin has to be reinstalled to test, which is worse friction during a week of daily changes, so the extraction waited until the workflow stopped moving.</p>
+    <p>What forced it: these skills referenced each other by name and path, so anyone installing one got pointers to skills they did not have. Now MIT, employer-agnostic, and its own marketplace.</p>
+  </div>
+</details>
+
+<details class="done">
+  <summary><svg class="ico"><use href="#ico-done"/></svg><span class="txt">Cut to four files</span></summary>
+  <div class="detail">
+    <p>927 lines and seven artifacts per repo, for what is an index page and a log. Now 378 and four.</p>
+    <p>Deleted: a commit hook writing an event log, a generated manifest, and a health checker. Every field in the event log was derivable from <code>git log</code>. The manifest was a contract for an aggregation tool that does not exist, which is the exact YAGNI violation the skill file warned against two hours before it was built. The checker needed three bug fixes in one day, and a checker that reports clean when it is not is worse than no checker.</p>
+    <p>The board is what replaced them, absorbing both a roadmap file and a progress file so one artifact owns status instead of three drifting.</p>
+  </div>
+</details>
+
+<details class="done">
+  <summary><svg class="ico"><use href="#ico-done"/></svg><span class="txt">State icons that survive a narrow column</span></summary>
+  <div class="detail">
+    <p>The todo marker rendered as a broken bracket. <code>[ ]</code> is three characters in a box fixed at 1.4rem, so it wrapped, opening bracket on one line and closing bracket on the next, on every todo row.</p>
+    <p>Replaced with four SVG symbols in a sprite, referenced per objective, stroked in <code>currentColor</code> so one set serves both themes instead of eight data URIs. State stays distinguishable by shape rather than colour, which is the rule the board had from the start: check, play triangle, empty ring, dashed ring, all on the same 16x16 ring so rows align.</p>
+  </div>
+</details>
+
+<details class="now" open>
+  <summary><svg class="ico"><use href="#ico-now"/></svg><span class="txt">Migrate the repos still on the old layout</span></summary>
+  <div class="detail">
+    <p>Three repos carried the seven-file <code>hub/</code> layout. Two are migrated: scaffolding deleted, <code>hub/</code> moved to <code>.hub/</code> with history preserved, real objectives written into <code>hub.yml</code> from what each project is actually doing, <code>index.html</code> regenerated, and a correction entry appended to each ledger naming the moved paths.</p>
+    <p>The third is deferred, not skipped. Another session is actively editing that repo, and a <code>git mv</code> against an index someone else is staging into either clobbers their work or loses it.</p>
+    <p>Next: run the same three-step cleanup there once that session is idle. It needs less than the others, since it is already on <code>.hub/</code>.</p>
+  </div>
+</details>
+
+<details class="todo">
+  <summary><svg class="ico"><use href="#ico-todo"/></svg><span class="txt">Check local paths at generation time</span></summary>
+  <div class="detail">
+    <p>A reference tile in one migrated repo had pointed at a path that stopped existing a day earlier, and nothing noticed, because a dead local link renders exactly like a live one.</p>
+    <p>The skill already marks machine-local tiles with a class, but that says the link might not resolve elsewhere. It says nothing about whether it resolves here. A link check at generation time is what caught it, and that belongs in the skill rather than in whatever the generating session happened to think of.</p>
+  </div>
+</details>
+
+<details class="later">
+  <summary><svg class="ico"><use href="#ico-later"/></svg><span class="txt">The rest of the workflow skills</span></summary>
+  <div class="detail">
+    <p>Three more skills belong in this plugin: the two that snapshot and resume work in progress, and the one that renders a long-running plan as a page. They are employer-agnostic already.</p>
+    <p>Held back because a plugin must be reinstalled to test, and moving them while the hub layout was still changing weekly would have meant reinstalling on every edit.</p>
+  </div>
+</details>
+
+<details class="later">
+  <summary><svg class="ico"><use href="#ico-later"/></svg><span class="txt">A second plugin for the content side</span></summary>
+  <div class="detail">
+    <p>The content skills are a different plugin, not more of this one. This one is about project structure and works for anyone; that one encodes a specific content cycle and a specific stack.</p>
+    <p>Splitting on that line is what keeps this repo installable by a stranger.</p>
+  </div>
+</details>
+<!-- BOARD END -->
+</div>
+<p class="stamp">2026-08-07: two of three repos migrated onto .hub/, and this repo got its own. Next: the third repo, once the session holding it is idle.</p>
+</div>
+
+</div>
+
+<p class="stamp foot">Generated 2026-08-07. Pending tiles do not exist yet; local only resolves on this machine.</p>
+
+<script>
+  (function () {
+    var root = document.documentElement, btn = document.getElementById('theme-toggle'), stored = null;
+    try { stored = localStorage.getItem('doc-theme'); } catch (e) {}
+    var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var theme = stored || (sysDark ? 'dark' : 'light');
+    function apply(t) { root.setAttribute('data-theme', t); btn.textContent = t === 'dark' ? 'Light mode' : 'Dark mode'; }
+    apply(theme);
+    btn.addEventListener('click', function () {
+      theme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; apply(theme);
+      try { localStorage.setItem('doc-theme', theme); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>
